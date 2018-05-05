@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using Gamex.src.Util;
+using Gamex.src.Util.Polygon;
+using Gamex.src.Util.Settingsx;
 using Gamex.src.Util.Size;
 using Gamex.src.Util.Coordinate;
 using Gamex.src.XDGE;
@@ -101,7 +102,7 @@ namespace Gamex.src.GameModel.Entities
                 Facing,
                 DrawAdapter.DrawMode.Centered);
 
-            if (Settings.SettingsTree.Debug.ShowSize && Solid)
+            if (Settings.Tree.Debug.ShowSize && Solid)
             {
                 drawAdapter.TraceRectangle(
                     Color.Fuchsia, 
@@ -111,7 +112,7 @@ namespace Gamex.src.GameModel.Entities
                 ;
             }
 
-            if (Settings.SettingsTree.Debug.ShowMoveTo && MoveTo != null)
+            if (Settings.Tree.Debug.ShowMoveTo && MoveTo != null)
             {
                 var moveToGLCoord = MoveTo.ToGLCoordinate();
                 drawAdapter.FillRectangle(

@@ -57,8 +57,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.0.0\lib\net20\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -109,6 +109,12 @@
     </Compile>
     <Compile Include="src\Util\debugwindow\ConsoleWindow.Designer.cs">
       <DependentUpon>ConsoleWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="src\Util\debugwindow\DebugSettingsWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="src\Util\debugwindow\DebugSettingsWindow.Designer.cs">
+      <DependentUpon>DebugSettingsWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="src\Util\debugwindow\DebugWindow.cs">
       <SubType>Form</SubType>
@@ -163,6 +169,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="src\Util\debugwindow\ConsoleWindow.resx">
       <DependentUpon>ConsoleWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\Util\debugwindow\DebugSettingsWindow.resx">
+      <DependentUpon>DebugSettingsWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="src\Util\debugwindow\DebugWindow.resx">
       <DependentUpon>DebugWindow.cs</DependentUpon>

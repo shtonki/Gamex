@@ -13,7 +13,7 @@ namespace Gamex.src.Util.DebugWindow
 {
     public partial class LogWindow : UserControl, ILogger
     {
-        public bool AutoScroll
+        public new bool AutoScroll
         {
             get { return _AutoScroll; }
             set

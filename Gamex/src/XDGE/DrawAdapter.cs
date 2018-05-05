@@ -45,9 +45,9 @@ namespace Gamex.src.XDGE
                     throw new GameBrokenException("Fallthroughx");
             }
 
-            GL.PushMatrix();
-            GL.Translate(location.X, location.Y, 0);
-            GL.Rotate(rotation, 0, 0, 1);
+            PushMatrix();
+            Translate(location.X, location.Y);
+            Rotate(rotation);
             
             GL.Enable(EnableCap.Texture2D);
             GL.Color4(image.BrushColor);
@@ -69,9 +69,7 @@ namespace Gamex.src.XDGE
             GL.End();
             GL.Disable(EnableCap.Texture2D);
 
-            GL.Rotate(-rotation, 0, 0, 1);
-            GL.Translate(-location.X, location.Y, 0);
-            GL.PopMatrix();
+            PopMatrix();
         }
 
         public void TraceRectangle(Color color, float x, float y, float width, float height)
@@ -108,11 +106,19 @@ namespace Gamex.src.XDGE
             FillRectangle(cb, topLeft.X, topLeft.Y, bottomRight.X-topLeft.X, topLeft.Y - bottomRight.Y);
         }
 
+        /// <summary>
+        /// Pushes a translation matrix
+        /// Rubber on before translating or scaling
+        /// </summary>
         public void PushMatrix()
         {
             GL.PushMatrix();
         }
 
+        /// <summary>
+        /// Pops a translation matrix
+        /// Rubber off after translating or scaling
+        /// </summary>
         public void PopMatrix()
         {
             GL.PopMatrix();
@@ -120,12 +126,22 @@ namespace Gamex.src.XDGE
 
         public void Translate(GLCoordinate translation)
         {
-            GL.Translate(translation.X, translation.Y, 0);
+            Translate(translation.X, translation.Y);
         }
 
-        public void Scale(float xF, float yF, float zF = 1)
+        public void Translate(float x, float y)
         {
-            GL.Scale(xF, yF, zF);
+            GL.Translate(x, y, 0);
+        }
+
+        public void Scale(float xScale, float yScale)
+        {
+            GL.Scale(xScale, yScale, 1);
+        }
+
+        public void Rotate(float radians)
+        {
+            GL.Rotate(radians, 0, 0, 1);
         }
     }
 }

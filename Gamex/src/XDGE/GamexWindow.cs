@@ -17,7 +17,7 @@ namespace Gamex.src.XDGE
         public GamexWindow(Action<DrawAdapter> renderCallback) : base(720, 720, new OpenTK.Graphics.GraphicsMode(32, 24, 0, 8))
         {
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             RenderCallback = renderCallback;
         }
 

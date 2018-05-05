@@ -9,10 +9,7 @@ namespace Gamex.src.Controller.Debug
 {
     static class DebugController
     {
-        private static bool LogWindowProbablyOpen { get; set; }
-
         public static DebugWindow DebugWindow { get; set; }
-
         public static PixelCoordinate MousePosPixel
         {
             set
@@ -20,7 +17,6 @@ namespace Gamex.src.Controller.Debug
                 SafeInvoke(() => DebugWindow.MouseInfoWindow.MouseCoordinatePixelLabel.Text = value.ToString());
             }
         }
-
         public static GLCoordinate MousePosGL
         {
             set
@@ -28,7 +24,6 @@ namespace Gamex.src.Controller.Debug
                 SafeInvoke(() => DebugWindow.MouseInfoWindow.MouseCoordinateGLLabel.Text = value.ToString());
             }
         }
-
         public static GameCoordinate MousePosGame
         {
             set
@@ -37,19 +32,29 @@ namespace Gamex.src.Controller.Debug
             }
         }
 
+        private static bool LogWindowProbablyOpen { get; set; }
 
+
+        /// <summary>
+        /// Shows the debug window
+        /// </summary>
         public static void Initialize()
         {
-            Thread t = new Thread(() =>
+            // Application.Run blocks so we make a thread
+            // new Thread(...).Start() because we're balling outta control here
+            new Thread(() =>
             {
                 DebugWindow = new DebugWindow();
                 DebugWindow.Closed += (sender, args) => LogWindowProbablyOpen = false;
                 Application.Run(DebugWindow);
-            });
-            t.Start();
+            }).Start();
             LogWindowProbablyOpen = true;
         }
 
+        /// <summary>
+        /// Prints a message to the log panel
+        /// </summary>
+        /// <param name="message"></param>
         public static void Log(string message)
         {
             if (LogWindowProbablyOpen)
@@ -72,7 +77,7 @@ namespace Gamex.src.Controller.Debug
                     action();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Logger.Default.Log("SafeInvoke failed miserably");
             }

@@ -4,41 +4,49 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using Gamex.src.Util.Logging;
 
-namespace Gamex.src.Util
+namespace Gamex.src.Util.Settingsx
 {
     public static class Settings
     {
-        public static SettingsTree SettingsTree { get; private set; }
+        public static SettingsTree Tree { get; private set; }
 
         private const string SettingsFileName = "settings";
         private const string SettingsBackupFileName = SettingsFileName + "~";
 
         static Settings()
         {
-            if (SettingsTree == null)
+            if (Tree == null)
             {
                 Load();
             }
         }
 
+
+        /// <summary>
+        /// Attempts to save settings to disk; to the location specified by SettingsFileName
+        /// </summary>
         public static void Save()
         {
             using (var filestream = new FileStream(SettingsBackupFileName, FileMode.OpenOrCreate))
             {
                 var formatter = new BinaryFormatter();
-                formatter.Serialize(filestream, SettingsTree);
+                formatter.Serialize(filestream, Tree);
             }
 
             File.Delete(SettingsFileName);
             File.Move(SettingsBackupFileName, SettingsFileName);
         }
 
+        /// <summary>
+        /// Attepts to load settings from disk; from the location specified by SettingsFileName
+        /// Any number of things might go wrong and at the moment we deal with them by reverting to default settings
+        /// </summary>
         public static void Load()
         {
             if (!File.Exists(SettingsFileName))
             {
                 Logger.Default.Log("Didn't find settings file, using default settings.");
-                SettingsTree = new SettingsTree();
+                Tree = new SettingsTree();
                 return;
             }
 
@@ -46,16 +54,30 @@ namespace Gamex.src.Util
 
             using (var filestream = new FileStream(SettingsFileName, FileMode.Open))
             {
+                // i seem to be psychologically unable to copy code even if it's a one liner
+                Action neurosis = () => Tree = new SettingsTree();
                 try
                 {
                     var raw = formatter.Deserialize(filestream);
-                    SettingsTree = (SettingsTree)raw;
+                    Tree = (SettingsTree)raw;
                 }
-                catch (InvalidOperationException e)
+                catch (TypeInitializationException)
+                {
+                    // we changed the settings definitions in the softcheese
+                    // todo d10 i7 recover
+                    neurosis();
+                }
+                catch (InvalidOperationException)
                 {
                     // the settings file is corrupted. overwrite
                     // todo d10i4 attempt to recover the valid settings
-                    SettingsTree = new SettingsTree();
+                    neurosis();
+                }
+                catch
+                {
+                    // we're here either because i can't read or because microshaft fucked something
+                    // just default it
+                    neurosis();
                 }
             }
         }
@@ -70,10 +92,10 @@ namespace Gamex.src.Util
     [Serializable]
     public class DebugSettings
     {
-        public int TabIndex { get; set; }
+        public int TabIndex { get; set; } = 0;
 
-        public bool ShowSize { get; set; }
-        public bool ShowMoveTo { get; set; }
+        public bool ShowSize { get; set; } = false;
+        public bool ShowMoveTo { get; set; } = false;
     }
 }
 

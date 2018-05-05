@@ -9,6 +9,7 @@ using Gamex.src.Util.Coordinate;
 using Gamex.src.Util.Logging;
 using Gamex.src.Util.Size;
 using Gamex.src.XDGE;
+using Gamex.src.Util;
 
 namespace Gamex.src.GameModel
 {
@@ -16,15 +17,8 @@ namespace Gamex.src.GameModel
     {
         public List<GameEntity> Entities { get; } = new List<GameEntity>();
 
-        public GameEntity MouseHack { get; }
-
         public Level()
         {
-            MouseHack = new GameEntity(Sprites.FloorWood1, new GameSize(0.01f, 0.01f));
-            MouseHack.Solid = true;
-            MouseHack.Visible = false;
-            Entities.Add(MouseHack);
-            MouseHack.Collision += (sender, xd) => xd.Other.Visible = false;
         }
     }
 

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Gamex.src.Util.Coordinate;
 using Gamex.src.Util.Size;
 using Gamex.src.XDGE;
 using Gamex.src.GameModel.Entities;
-using Gamex.src.Util;
+using Gamex.src.Util.Polygon;
 using Gamex.src.Util.Logging;
 
 namespace Gamex.src.GameModel
@@ -15,18 +16,34 @@ namespace Gamex.src.GameModel
         public GameEntity Hero { get; }
         public Level CurrentLevel { get; set; }
         public Camera Camera { get; set; }
+        public GameEntity MouseTracker { get; }
 
         public GameState()
         {
+            // build the level
             LevelBuilder levelBuilder = new LevelBuilder();
             levelBuilder.AddRoom(2, 3, 4, 4);
+            // set the current level as the newly built level
             CurrentLevel = levelBuilder.Level;
 
+            // create the hero
             Hero = new Human();
             Hero.Location = new GameCoordinate(0.0f, 0.3f);
+            // add the hero
             CurrentLevel.Entities.Add(Hero);
 
+            // set up the camera
             Camera = new FollowCamera(Hero);
+
+            // 
+            MouseTracker = new GameEntity(Sprites.FloorWood1, new GameSize(0.05f, 0.05f));
+            MouseTracker.Solid = true;
+            MouseTracker.Visible = false;
+            CurrentLevel.Entities.Add(MouseTracker);
+            MouseTracker.Collision += (sender, xd) =>
+            {
+                xd.Other.Tint = Color.Fuchsia;
+            };
         }
 
         public void Step()
@@ -37,9 +54,9 @@ namespace Gamex.src.GameModel
                 {
                     HandleCollisions();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    int i = 2;
+                    Logger.Default.Log("HandleCollisions error'd");
                 }
 
                 foreach (var e in CurrentLevel.Entities)
@@ -114,26 +131,25 @@ namespace Gamex.src.GameModel
             var result = new List<CollisionRecord>();
             var entityList = entities.ToList();
 
-
             for (int i = 0; i < entityList.Count; i++)
             {
                 var entityI = entityList[i];
                 if (!entityI.Solid) continue;
+
+                var vecI = entityI.CalculateMovementVector();
+
                 for (int j = i+1; j < entityList.Count; j++)
                 {
                     var entityJ = entityList[j];
                     if (!entityJ.Solid) continue;
 
-                    var vecI = entityI.CalculateMovementVector();
                     var vecJ = entityJ.CalculateMovementVector();
-
                     var velocity = vecI - vecJ;
+                    var collisionRecord = intersect.PolygonCollision(entityI.CollisionBounds, entityJ.CollisionBounds, velocity);
 
-                    var pcr = intersect.PolygonCollision(entityI.CollisionBounds, entityJ.CollisionBounds, velocity);
-
-                    if (pcr.Intersect || pcr.WillIntersect)
+                    if (collisionRecord.Intersect || collisionRecord.WillIntersect)
                     {
-                        result.Add(new CollisionRecord(entityI, vecI, entityJ, vecJ, pcr));
+                        result.Add(new CollisionRecord(entityI, vecI, entityJ, vecJ, collisionRecord));
                     }
                 }
             }
@@ -141,6 +157,10 @@ namespace Gamex.src.GameModel
         }
     }
 
+
+    /// <summary>
+    /// When a collision is detected this struct is used to pass information about the collision around
+    /// </summary>
     public struct CollisionRecord
     {
         public GameEntity EntityI { get; }

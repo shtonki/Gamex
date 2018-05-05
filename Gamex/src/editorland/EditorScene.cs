@@ -38,7 +38,7 @@ namespace Gamex.src.editorland
     class EditorScene : Scene
     {
         public UIEntity EntityWindow { get; }
-        public List<EditAction> EditActions;
+        public List<EditAction> EditActions { get; } = new List<EditAction>();
         public Camera Camera = new StaticCamera(new GameCoordinate(0, 0));
 
         public EditorScene()

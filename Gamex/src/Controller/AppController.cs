@@ -3,7 +3,7 @@ using Gamex.src.Controller.Graphics;
 using Gamex.src.Controller.Input;
 using Gamex.src.Controller.Game;
 using Gamex.src.Controller.GameFactory;
-using Gamex.src.Util;
+using Gamex.src.Util.Settingsx;
 
 namespace Gamex.src.Controller.App
 {
@@ -30,11 +30,7 @@ namespace Gamex.src.Controller.App
 
         public static void ExitApp()
         {
-            if (OnExit != null)
-            {
-                OnExit(null, new EventArgs());
-            }
-
+            OnExit?.Invoke(null, new EventArgs());
             Settings.Save();
             Environment.Exit(Int32.MaxValue);
         }

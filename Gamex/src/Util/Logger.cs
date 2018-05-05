@@ -69,12 +69,23 @@ namespace Gamex.src.Util.Logging
 
         public FileLogger(string fileName)
         {
-            Writer = new StreamWriter(fileName);
-            AppController.OnExit += (_, __) =>
+            try
             {
-                Writer.Flush();
-                Writer.Close();
-            };
+                Writer = new StreamWriter(fileName);
+                AppController.OnExit += (_, __) =>
+                {
+                    Writer.Flush();
+                    Writer.Close();
+                };
+            }
+            // i'm here because when the designer uses files that use this logger
+            // it crashes horribly since it can't open the file
+            // microsoft won't tell me what error it is so i catch them all
+            // write to a dummy and hope this never happens when one wants logging
+            catch
+            {
+                Writer = StreamWriter.Null;
+            }
         }
 
         public void Log(string logMessage, params object[] arguments)

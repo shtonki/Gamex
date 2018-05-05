@@ -23,10 +23,10 @@ namespace Gamex.src.XDGE
                 new GamexInputMouseButton(GamexInputMouseButton.Directions.Down, MouseButton.Right, null),
                 HandleRightMouseDown));
 
-            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button1, null), HandleScrollUp));
-            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button2, null), HandleScrollDown));
-            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button3, null), HandleScrollUp));
-            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button4, null), HandleScrollDown));
+            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button1, null), HandleZoomIn));
+            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button2, null), HandleZoomOut));
+            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button3, null), HandleZoomIn));
+            Bindings.Add(new InputBinding(new GamexInputMouseButton(GamexInputMouseButton.Directions.Up, MouseButton.Button4, null), HandleZoomOut));
         }
 
         private void HandleRightMouseDown(GamexInput input)
@@ -37,12 +37,12 @@ namespace Gamex.src.XDGE
             GameState.Hero.MoveTo = c + GameState.Camera.Location;
         }
 
-        private void HandleScrollDown(GamexInput input)
+        private void HandleZoomOut(GamexInput input)
         {
             GameState.Camera.Zoom.ZoomOut();
         }
 
-        private void HandleScrollUp(GamexInput input)
+        private void HandleZoomIn(GamexInput input)
         {
             GameState.Camera.Zoom.ZoomIn();
         }
@@ -54,7 +54,7 @@ namespace Gamex.src.XDGE
                 var px = new PixelCoordinate(Mouse.GetState().X, Mouse.GetState().Y);
                 var gl = px.ToGLCoordinate(GraphicsController.Window.ClientSize);
                 var gm = GameCoordinate.FromGLCoordinate(gl, new GameCoordinate(0, 0));
-                GameState.CurrentLevel.MouseHack.Location = gm + GameState.Camera.Location;
+                GameState.MouseTracker.Location = gm + GameState.Camera.Location;
 
                 var cameraLocation = GameState.Camera.Location;
 

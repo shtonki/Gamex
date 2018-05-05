@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 
-namespace Gamex.src.Util
+namespace Gamex.src.Util.Polygon
 {
     public struct Vector
     {
