@@ -27,6 +27,10 @@ namespace Gamex.src.Util
 
     class GameBrokenException : GamexException
     {
+        public GameBrokenException() : this("This is expected to never happen. Good job bud.")
+        {
+        }
+
         public GameBrokenException(string message) : base(message)
         {
         }

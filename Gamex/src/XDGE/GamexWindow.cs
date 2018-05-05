@@ -44,7 +44,7 @@ namespace Gamex.src.XDGE
 
             if (Program.DEBUGMODE)
             {
-                var pixelCoord = new PixelCoordinate(Mouse.GetState().X, Mouse.GetState().Y);
+                var pixelCoord = new PixelCoordinate(Mouse.X, Mouse.Y);
                 var glCoord = pixelCoord.ToGLCoordinate(ClientSize);
                 DebugController.MousePosPixel = pixelCoord;
                 DebugController.MousePosGL = glCoord;

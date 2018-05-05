@@ -86,16 +86,38 @@ namespace Gamex.src.Util.Settingsx
     [Serializable]
     public class SettingsTree
     {
+        [SettingInfo(Comment = "Debug settings")]
         public DebugSettings Debug { get; } = new DebugSettings();
     }
 
     [Serializable]
     public class DebugSettings
     {
+        [SettingInfo(Comment = "The index of the current tab shown in the debug window")]
         public int TabIndex { get; set; } = 0;
 
+        [SettingInfo(Comment = "Toggles drawing of size boxes ingame")]
         public bool ShowSize { get; set; } = false;
+        [SettingInfo(Comment = "Toggles dawing of a marker where the hero is currently moving to")]
         public bool ShowMoveTo { get; set; } = false;
     }
+
+    [System.AttributeUsage(AttributeTargets.Property)]
+    public class SettingInfo : Attribute
+    {
+        public string Comment;
+
+        public string SettingName;
+        public Type SettingType;
+        public Action<object> SetValueFunctionHandle;
+        public Func<object> GetValueFunctionHandle;
+
+        public object Value
+        {
+            get { return GetValueFunctionHandle?.Invoke(); }
+            set { SetValueFunctionHandle?.Invoke(value); }
+        }
+    }
+
 }
 

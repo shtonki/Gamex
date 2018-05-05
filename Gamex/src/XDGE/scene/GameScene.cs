@@ -51,7 +51,7 @@ namespace Gamex.src.XDGE
         {
             if (GameState != null)
             {
-                var px = new PixelCoordinate(Mouse.GetState().X, Mouse.GetState().Y);
+                var px = new PixelCoordinate(GraphicsController.Window.Mouse.X, GraphicsController.Window.Mouse.Y);
                 var gl = px.ToGLCoordinate(GraphicsController.Window.ClientSize);
                 var gm = GameCoordinate.FromGLCoordinate(gl, new GameCoordinate(0, 0));
                 GameState.MouseTracker.Location = gm + GameState.Camera.Location;
