@@ -42,7 +42,7 @@ namespace Gamex.src.GameModel.Entities
 
         private GameCoordinate _Location { get; set; }
 
-        public event EventHandler<xd> Collision;
+        public event EventHandler<CollisionInfo> Collision;
 
         public GameEntity()
         {
@@ -104,12 +104,11 @@ namespace Gamex.src.GameModel.Entities
 
             if (Settings.Tree.Debug.ShowSize && Solid)
             {
-                drawAdapter.TraceRectangle(
-                    Color.Fuchsia, 
-                    glLocation.X - Size.Width/2, 
-                    -glLocation.Y - Size.Height/2,
-                    Size.Width, Size.Height);
-                ;
+                drawAdapter.TracePolygon(
+                    Color.Fuchsia,
+                    glLocation,
+                    0,
+                    CollisionBounds.Edges);
             }
 
             if (Settings.Tree.Debug.ShowMoveTo && MoveTo != null)
@@ -132,7 +131,7 @@ namespace Gamex.src.GameModel.Entities
 
         public virtual void Collide(GameEntity other, CollisionRecord collisionRecord)
         {
-            Collision?.Invoke(this, new xd(this, other, collisionRecord));
+            Collision?.Invoke(this, new CollisionInfo(this, other, collisionRecord));
         }
 
         protected abstract class Bounds
@@ -151,13 +150,13 @@ namespace Gamex.src.GameModel.Entities
             }
         }
 
-        public struct xd
+        public struct CollisionInfo
         {
             public GameEntity Self { get; }
             public GameEntity Other { get; }
             public CollisionRecord CollisionRecord { get; }
 
-            public xd(GameEntity self, GameEntity other, CollisionRecord collisionRecord)
+            public CollisionInfo(GameEntity self, GameEntity other, CollisionRecord collisionRecord)
             {
                 Self = self;
                 Other = other;

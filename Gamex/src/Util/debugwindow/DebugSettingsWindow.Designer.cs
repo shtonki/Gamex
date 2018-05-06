@@ -39,7 +39,6 @@
             this.SettingsTreeView.Size = new System.Drawing.Size(493, 377);
             this.SettingsTreeView.TabIndex = 0;
             this.SettingsTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.HandleSelectChanged);
-            this.SettingsTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.HandleNodeMouseDoubleClick);
             // 
             // SettingInfoPanel
             // 

@@ -154,7 +154,7 @@ namespace Gamex.src.Util.DebugWindow
                 if (!Boolean.TryParse(raw, out b)) { return; }
                 o = b;
             }
-            if (info.SettingType == typeof (int))
+            else if (info.SettingType == typeof (int))
             {
                 int i;
                 if (!Int32.TryParse(raw, out i)) { return; }

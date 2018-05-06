@@ -93,10 +93,10 @@ namespace Gamex.src.Util.Settingsx
     [Serializable]
     public class DebugSettings
     {
-        [SettingInfo(Comment = "The index of the current tab shown in the debug window")]
+        [SettingInfo(Comment = "The index of the tab shown in the debug window; read on restart")]
         public int TabIndex { get; set; } = 0;
 
-        [SettingInfo(Comment = "Toggles drawing of size boxes ingame")]
+        [SettingInfo(Comment = "Toggles drawing of size boxes")]
         public bool ShowSize { get; set; } = false;
         [SettingInfo(Comment = "Toggles dawing of a marker where the hero is currently moving to")]
         public bool ShowMoveTo { get; set; } = false;

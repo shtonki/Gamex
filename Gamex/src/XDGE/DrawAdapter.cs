@@ -1,7 +1,9 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using Gamex.src.Util;
 using OpenTK.Graphics.OpenGL;
 using Gamex.src.Util.Coordinate;
+using Gamex.src.Util.Polygon;
 
 namespace Gamex.src.XDGE
 {
@@ -11,6 +13,7 @@ namespace Gamex.src.XDGE
         {
             Centered,
             TopLeft,
+            BottomRight,
         }
 
         /// <summary>
@@ -41,6 +44,14 @@ namespace Gamex.src.XDGE
                         bottom = image.Size.Height;
                 } break;
 
+                case DrawMode.BottomRight:
+                {
+                        left = -image.Size.Width;
+                        right = 0;
+                        top = -image.Size.Height;
+                        bottom = 0;
+                    } break;
+
                 default:
                     throw new GameBrokenException("Fallthroughx");
             }
@@ -69,6 +80,24 @@ namespace Gamex.src.XDGE
             GL.End();
             GL.Disable(EnableCap.Texture2D);
 
+            PopMatrix();
+        }
+
+        public void TracePolygon(Color color, GLCoordinate location, float rotation, IEnumerable<Vector> vectors)
+        {
+            PushMatrix();
+            Translate(location.X, location.Y);
+            Rotate(rotation);
+
+            GL.Color4(color);
+            GL.Begin(BeginMode.LineLoop);
+
+            foreach (var vector in vectors)
+            {
+                GL.Vertex2(vector.X, vector.Y);
+            }
+
+            GL.End();
             PopMatrix();
         }
 

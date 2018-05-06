@@ -16,7 +16,7 @@ namespace Gamex.src.GameModel
         public GameEntity Hero { get; }
         public Level CurrentLevel { get; set; }
         public Camera Camera { get; set; }
-        public GameEntity MouseTracker { get; }
+        public MouseTracker MouseTracker { get; }
 
         public GameState()
         {
@@ -35,15 +35,9 @@ namespace Gamex.src.GameModel
             // set up the camera
             Camera = new FollowCamera(Hero);
 
-            // 
-            MouseTracker = new GameEntity(Sprites.FloorWood1, new GameSize(0.05f, 0.05f));
-            MouseTracker.Solid = true;
-            MouseTracker.Visible = false;
+            // set up mouse tracking entity
+            MouseTracker = new MouseTracker();
             CurrentLevel.Entities.Add(MouseTracker);
-            MouseTracker.Collision += (sender, xd) =>
-            {
-                xd.Other.Tint = Color.Fuchsia;
-            };
         }
 
         public void Step()
@@ -157,6 +151,53 @@ namespace Gamex.src.GameModel
         }
     }
 
+    public class MouseTracker : GameEntity
+    {
+        private Dictionary<GameEntity, int> TouchTTL = new Dictionary<GameEntity, int>();
+        private int TTL = 2;
+
+        public MouseTracker() : base(Sprites.FloorWood1, new GameSize(0.01f, 0.01f))
+        {
+            Solid = true;
+            Visible = false;
+        }
+
+        public override void Collide(GameEntity other, CollisionRecord collisionRecord)
+        {
+            if (!TouchTTL.ContainsKey(other))
+            {
+                Enter(other);
+            }
+            TouchTTL[other] = TTL;
+        }
+
+        public override void Step()
+        {
+            foreach (var entry in TouchTTL)
+            {
+                var newValue = entry.Value - 1;
+                if (entry.Value <= 0)
+                {
+                    Leave(entry.Key);
+                    TouchTTL.Remove(entry.Key);
+                }
+                else
+                {
+                    TouchTTL[entry.Key] = newValue;
+                }
+            }
+        }
+
+        private void Enter(GameEntity e)
+        {
+            e.Tint = Color.Aqua;
+        }
+
+        private void Leave(GameEntity e)
+        {
+            e.Tint = Color.White;
+        }
+    }
 
     /// <summary>
     /// When a collision is detected this struct is used to pass information about the collision around
