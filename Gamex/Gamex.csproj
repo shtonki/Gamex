@@ -89,6 +89,7 @@
     <Compile Include="src\editorland\EditorScene.cs" />
     <Compile Include="src\editorland\ISelectable.cs" />
     <Compile Include="src\GameModel\Camera.cs" />
+    <Compile Include="src\GameModel\Collision.cs" />
     <Compile Include="src\GameModel\Entities\Brick.cs" />
     <Compile Include="src\GameModel\Entities\EditorEntity.cs" />
     <Compile Include="src\GameModel\Entities\Entity.cs" />
@@ -138,7 +139,6 @@
     <Compile Include="src\Util\ImageBinder.cs" />
     <Compile Include="src\Util\Logger.cs" />
     <Compile Include="src\Util\Nope.cs" />
-    <Compile Include="src\Util\Polygon.cs" />
     <Compile Include="src\Util\Settings.cs" />
     <Compile Include="src\Util\Size.cs" />
     <Compile Include="src\XDGE\DrawAdapter.cs" />

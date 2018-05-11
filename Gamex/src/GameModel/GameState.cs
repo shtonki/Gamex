@@ -6,7 +6,6 @@ using Gamex.src.Util.Coordinate;
 using Gamex.src.Util.Size;
 using Gamex.src.XDGE;
 using Gamex.src.GameModel.Entities;
-using Gamex.src.Util.Polygon;
 using Gamex.src.Util.Logging;
 
 namespace Gamex.src.GameModel
@@ -22,7 +21,8 @@ namespace Gamex.src.GameModel
         {
             // build the level
             LevelBuilder levelBuilder = new LevelBuilder();
-            levelBuilder.AddRoom(2, 3, 4, 4);
+            //levelBuilder.AddRoom(2, 3, 4, 4);
+            levelBuilder.AddEntity(new Brick(Sprites.Brick1, new GameSize(0.1f, 0.1f)), 0, 0);
             // set the current level as the newly built level
             CurrentLevel = levelBuilder.Level;
 
@@ -46,11 +46,11 @@ namespace Gamex.src.GameModel
             {
                 try
                 {
-                    HandleCollisions();
+                    HandleMovements();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Logger.Default.Log("HandleCollisions error'd");
+                    Logger.Default.Log("HandleMovements error'd");
                 }
 
                 foreach (var e in CurrentLevel.Entities)
@@ -60,10 +60,18 @@ namespace Gamex.src.GameModel
             }
         }
 
-        private void HandleCollisions()
+        private void HandleMovements()
         {
+            var movementInfos = Collision.CalculateMovements(CurrentLevel.Entities);
+
+            foreach (var movementInfo in movementInfos)
+            {
+                movementInfo.Entity.Move(movementInfo.Movement);
+            }
+#if false
+
             var unhandled = new HashSet<GameEntity>(CurrentLevel.Entities);
-            var collisions = DetectCollisions(CurrentLevel.Entities);
+            var collisions = CalculateMovements(CurrentLevel.Entities);
 
             foreach (var collisionRecord in collisions)
             {
@@ -88,7 +96,7 @@ namespace Gamex.src.GameModel
                 }
 
                 GameEntity moving = null;
-                Vector translationVector;
+                MovementVector translationVector;
 
                 if (ICanMove && IMag != 0)
                 {
@@ -103,7 +111,7 @@ namespace Gamex.src.GameModel
                 else
                 {
                     Logger.Default.Log("fug #315");
-                    translationVector = new Vector(); // compiler valium
+                    translationVector = new MovementVector(); // compiler valium
                 }
 
                 if (moving != null)
@@ -118,36 +126,18 @@ namespace Gamex.src.GameModel
                 entity.Location = entity.Location.Add(movementvector.X, movementvector.Y);
                 //Logger.Default.Log(entity.Location.ToString());
             }
+#endif
         }
+    }
 
-        private IEnumerable<CollisionRecord> DetectCollisions(IEnumerable<GameEntity> entities)
+    public struct MovementInfo
+    {
+        public GameEntity Entity { get; }
+        public MovementVector Movement { get; set; }
+
+        public MovementInfo(GameEntity entity) : this()
         {
-            var result = new List<CollisionRecord>();
-            var entityList = entities.ToList();
-
-            for (int i = 0; i < entityList.Count; i++)
-            {
-                var entityI = entityList[i];
-                if (!entityI.Solid) continue;
-
-                var vecI = entityI.CalculateMovementVector();
-
-                for (int j = i+1; j < entityList.Count; j++)
-                {
-                    var entityJ = entityList[j];
-                    if (!entityJ.Solid) continue;
-
-                    var vecJ = entityJ.CalculateMovementVector();
-                    var velocity = vecI - vecJ;
-                    var collisionRecord = intersect.PolygonCollision(entityI.CollisionBounds, entityJ.CollisionBounds, velocity);
-
-                    if (collisionRecord.Intersect || collisionRecord.WillIntersect)
-                    {
-                        result.Add(new CollisionRecord(entityI, vecI, entityJ, vecJ, collisionRecord));
-                    }
-                }
-            }
-            return result;
+            Entity = entity;
         }
     }
 
@@ -161,7 +151,7 @@ namespace Gamex.src.GameModel
             Solid = true;
             Visible = false;
         }
-
+#if false
         public override void Collide(GameEntity other, CollisionRecord collisionRecord)
         {
             if (!TouchTTL.ContainsKey(other))
@@ -170,7 +160,7 @@ namespace Gamex.src.GameModel
             }
             TouchTTL[other] = TTL;
         }
-
+#endif
         public override void Step()
         {
             foreach (var entry in TouchTTL)
@@ -196,28 +186,6 @@ namespace Gamex.src.GameModel
         private void Leave(GameEntity e)
         {
             e.Tint = Color.White;
-        }
-    }
-
-    /// <summary>
-    /// When a collision is detected this struct is used to pass information about the collision around
-    /// </summary>
-    public struct CollisionRecord
-    {
-        public GameEntity EntityI { get; }
-        public Vector MovementVectorI { get; }
-        public GameEntity EntityJ { get; }
-        public Vector MovementVectorJ { get; }
-
-        public intersect.PolygonCollisionResult Result { get; }
-
-        public CollisionRecord(GameEntity entityI, Vector movementVectorI, GameEntity entityJ, Vector movementVectorJ, intersect.PolygonCollisionResult result)
-        {
-            EntityI = entityI;
-            MovementVectorI = movementVectorI;
-            EntityJ = entityJ;
-            MovementVectorJ = movementVectorJ;
-            Result = result;
         }
     }
 }

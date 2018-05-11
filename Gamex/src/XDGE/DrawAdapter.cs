@@ -3,7 +3,6 @@ using System.Drawing;
 using Gamex.src.Util;
 using OpenTK.Graphics.OpenGL;
 using Gamex.src.Util.Coordinate;
-using Gamex.src.Util.Polygon;
 
 namespace Gamex.src.XDGE
 {
@@ -16,6 +15,50 @@ namespace Gamex.src.XDGE
             BottomRight,
         }
 
+        private struct GLBoundingBox
+        {
+            public float Left { get; }
+            public float Right { get; }
+            public float Top { get; }
+            public float Bottom { get; }
+
+            public GLBoundingBox(float width, float height, DrawMode drawMode)
+            {
+                switch (drawMode)
+                {
+                    case DrawMode.Centered:
+                        {
+                            Left = -width / 2;
+                            Right = width / 2;
+                            Top = -height / 2;
+                            Bottom = height / 2;
+                        }
+                        break;
+
+                    case DrawMode.TopLeft:
+                        {
+                            Left = 0;
+                            Right = width;
+                            Top = 0;
+                            Bottom = height;
+                        }
+                        break;
+
+                    case DrawMode.BottomRight:
+                        {
+                            Left = -width;
+                            Right = 0;
+                            Top = -height;
+                            Bottom = 0;
+                        }
+                        break;
+
+                    default:
+                        throw new GameBrokenException("Fallthroughx");
+                }
+            }
+        }
+
         /// <summary>
         /// Draws an image on the on the current Scene.
         /// </summary>
@@ -24,37 +67,7 @@ namespace Gamex.src.XDGE
         /// <param name="rotation">The rotation of the image in degrees</param>
         public void DrawImage(ImageX image, GLCoordinate location, float rotation, DrawMode drawMode)
         {
-
-            float left, right, top, bottom;
-            switch (drawMode)
-            {
-                case DrawMode.Centered:
-                {
-                        left = -image.Size.Width / 2;
-                        right = image.Size.Width / 2;
-                        top =   -image.Size.Height / 2;
-                        bottom = image.Size.Height / 2;
-                } break;
-
-                case DrawMode.TopLeft:
-                {
-                        left = 0;
-                        right = image.Size.Width;
-                        top = 0;
-                        bottom = image.Size.Height;
-                } break;
-
-                case DrawMode.BottomRight:
-                {
-                        left = -image.Size.Width;
-                        right = 0;
-                        top = -image.Size.Height;
-                        bottom = 0;
-                    } break;
-
-                default:
-                    throw new GameBrokenException("Fallthroughx");
-            }
+            var glBounds = new GLBoundingBox(image.Size.Width, image.Size.Height, drawMode);
 
             PushMatrix();
             Translate(location.X, location.Y);
@@ -66,16 +79,16 @@ namespace Gamex.src.XDGE
             GL.Begin(BeginMode.Quads);
 
             GL.TexCoord2(0, 0);
-            GL.Vertex2(left, top);
+            GL.Vertex2(glBounds.Left, glBounds.Top);
 
             GL.TexCoord2(0, 1);
-            GL.Vertex2(left, bottom);
+            GL.Vertex2(glBounds.Left, glBounds.Bottom);
 
             GL.TexCoord2(1, 1);
-            GL.Vertex2(right, bottom);
+            GL.Vertex2(glBounds.Right, glBounds.Bottom);
 
             GL.TexCoord2(1, 0);
-            GL.Vertex2(right, top);
+            GL.Vertex2(glBounds.Right, glBounds.Top);
 
             GL.End();
             GL.Disable(EnableCap.Texture2D);
@@ -83,7 +96,7 @@ namespace Gamex.src.XDGE
             PopMatrix();
         }
 
-        public void TracePolygon(Color color, GLCoordinate location, float rotation, IEnumerable<Vector> vectors)
+        public void TracePolygon(Color color, GLCoordinate location, float rotation, IEnumerable<GLCoordinate> vectors)
         {
             PushMatrix();
             Translate(location.X, location.Y);

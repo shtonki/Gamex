@@ -1,34 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using Gamex.src.Util.Polygon;
 using Gamex.src.Util.Settingsx;
 using Gamex.src.Util.Size;
 using Gamex.src.Util.Coordinate;
 using Gamex.src.XDGE;
+using Gamex.src.GameModel;
 
 namespace Gamex.src.GameModel.Entities
 {
+
     public class GameEntity : Entity
     {
-        public GameCoordinate Location
-        {
-            get { return _Location; }
-            set
-            {
-                //update the offset of the collision bounds
-                //if it gets out of what this code is probably why
-                if (_Location != null && value != null && CollisionBounds != null)
-                {
-                    var diff = value - _Location;
-                    CollisionBounds.Offset(diff.X, diff.Y);
-                }
-                _Location = value;
-            }
-        }
+        public GameCoordinate Location { get; set; }
+
+
+        public BoundingRectangle CollisionBounds { get; set; }
+        public BoundingRectangle CollisionBoundsTranslated => new BoundingRectangle(Location.X, Location.Y, CollisionBounds.Width, CollisionBounds.Height);
 
         public bool Solid { get; set; }
-
-        public Polygon CollisionBounds { get; set; }
 
         public bool Visible { get; set; } = true;
         public Sprites Sprite { get; set; }
@@ -39,9 +29,6 @@ namespace Gamex.src.GameModel.Entities
         public float Facing { get; private set; }
         public GameCoordinate MoveTo { get; set; }
 
-
-        private GameCoordinate _Location { get; set; }
-
         public event EventHandler<CollisionInfo> Collision;
 
         public GameEntity()
@@ -51,22 +38,27 @@ namespace Gamex.src.GameModel.Entities
 
         public GameEntity(Sprites sprite, GameSize size) : this()
         {
-            CollisionBounds = Bounds.MakeRectangle(size.Width, size.Height);
             Sprite = sprite;
             Size = size;
+            CollisionBounds = new BoundingRectangle(Size.Width, Size.Height);
         }
 
-        public Vector CalculateMovementVector()
+        public void Move(MovementVector movementVector)
+        {
+            Location = Location.Add(movementVector.X, movementVector.Y);
+        }
+
+        public MovementVector CalculateMovementVector()
         {
             if (MoveTo == null) // if we're not going anywhere
             {
-                return Vector.Zero;
+                return MovementVector.Zero;
             }
 
             if (Location.Distance(MoveTo) < 0.02f) // if we're close enough to where we are going
             {
                 MoveTo = null;
-                return Vector.Zero;
+                return MovementVector.Zero;
             }
 
             var heroCoordinate = Location;
@@ -79,8 +71,9 @@ namespace Gamex.src.GameModel.Entities
 
             var xd = speed * Math.Sin(angleInRadians);
             var yd = speed * Math.Cos(angleInRadians);
-            return new Vector((float)xd, (float)yd);
+            return new MovementVector((float)xd, (float)yd);
         }
+
 
         public virtual void Draw(DrawAdapter drawAdapter)
         {
@@ -106,7 +99,7 @@ namespace Gamex.src.GameModel.Entities
             {
                 drawAdapter.TracePolygon(
                     Color.Fuchsia,
-                    glLocation,
+                    glLocation - new GLCoordinate(Size.Width/2, Size.Height/2),
                     0,
                     CollisionBounds.Edges);
             }
@@ -124,44 +117,69 @@ namespace Gamex.src.GameModel.Entities
             }
         }
 
-
         public virtual void Step()
         {
         }
 
-        public virtual void Collide(GameEntity other, CollisionRecord collisionRecord)
+        public virtual void Collide(GameEntity other, CollisionInfo collisionInfo)
         {
-            Collision?.Invoke(this, new CollisionInfo(this, other, collisionRecord));
+            Collision?.Invoke(this, collisionInfo);
+            throw new NotImplementedException("if you weren't expecting too see this you might be in some trouble son");
+        }
+    }
+
+    public class BoundingRectangle
+    {
+        public float X { get; }
+        public float Y { get; }
+        public float Width { get; }
+        public float Height { get; }
+
+        public IEnumerable<GLCoordinate> Edges => new GLCoordinate[]
+        {
+            new GLCoordinate(X+0    , Y+0     ), 
+            new GLCoordinate(X+Width, Y+0     ), 
+            new GLCoordinate(X+Width, Y+Height), 
+            new GLCoordinate(X+0    , Y+Height), 
+        };
+
+        public BoundingRectangle(float width, float height)
+        {
+            Width = width;
+            Height = height;
         }
 
-        protected abstract class Bounds
+        public BoundingRectangle(float x, float y, float width, float height)
         {
-            private Polygon polygon;
-
-            public static Polygon MakeRectangle(float width, float height)
-            {
-                return new Polygon(new []
-                {
-                    new Vector(0, 0),
-                    new Vector(width, 0),
-                    new Vector(width, height),
-                    new Vector(0, height),
-                });
-            }
+            X = x;
+            Y = y;
+            Width = width;
+            Height = height;
         }
 
-        public struct CollisionInfo
-        {
-            public GameEntity Self { get; }
-            public GameEntity Other { get; }
-            public CollisionRecord CollisionRecord { get; }
+    }
 
-            public CollisionInfo(GameEntity self, GameEntity other, CollisionRecord collisionRecord)
-            {
-                Self = self;
-                Other = other;
-                CollisionRecord = collisionRecord;
-            }
+    public class MovementVector
+    {
+        public float X { get; }
+        public float Y { get; }
+
+        public MovementVector(float x, float y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        public static MovementVector Zero => new MovementVector(0, 0);
+
+        public static MovementVector operator -(MovementVector v1, MovementVector v2)
+        {
+            return new MovementVector(v1.X - v2.X, v1.Y - v2.Y);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("<X:{0} Y:{1}>", X, Y);
         }
     }
 }

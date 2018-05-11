@@ -1,6 +1,7 @@
 ﻿using System;
 using Gamex.src.Controller.Graphics;
 using Gamex.src.GameModel;
+using Gamex.src.GameModel.Entities;
 using Gamex.src.Util.Logging;
 using Gamex.src.Util.Size;
 
@@ -110,6 +111,11 @@ namespace Gamex.src.Util.Coordinate
         public static GameCoordinate operator -(GameCoordinate a, GameCoordinate b)
         {
             return a + -b;
+        }
+
+        public static GameCoordinate operator +(GameCoordinate gameCoordinate, MovementVector movementVector)
+        {
+            return new GameCoordinate(gameCoordinate.X + movementVector.X, gameCoordinate.Y + movementVector.Y);
         }
 
         public override string ToString()
